@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Chat</title>
+	<style type="text/css">
+	    body,input,button{
+	    	padding: 0;
+	    	margin:0;
+	    }
+	   
+		main{
+			margin: 50px auto;
+			width: 80%;
+			border: 1px solid #483D8B;
+			overflow-y: scroll;
+			height: 400px;
+			box-shadow: 0 0 1px 1px rgba(211,211,211,0.2);
+		}
+		.content-box{
+			width: 90%;
+			margin:15px auto;
+			overflow: hidden;
+			
+		}
+		.user-box{
+			border: 1px solid rgba(155,155,155,0.3);
+			width: 90%;
+			float: left;
+			margin: 0 auto;
+		}
+		.user-name{
+			height: 35px;
+			line-height: 35px;
+			background-color: rgba(222,222,222,0.3);
+			text-indent: 2em;
+			font-size: 12px;
+			font-family:'Microsoft YaHei';
+			color: #000;
+		}
+		.user-content{
+			padding:  20px;
+			line-height: 20px;
+			font-size: 16px;
+			text-indent: 2em;
+		}
+		img{
+			border-radius:50%;
+			width: 50px;
+			height: 50px;
+			display: block;
+			float: left;
+		}
+		.clear::after{
+			content: '';
+			display: block;
+			line-height: 0;
+			height: 0;
+            visibility: hidden;
+            clear: both;
+		}
+		footer{
+			margin: 50px auto;
+			width: 80%;
+		}
+		.user-input{
+			height: 40px;
+			width: 40%;
+			background: 
+			border:1px solid #00BFFF;		
+			text-indent: 2em;
+			font-size: 16px;
+		}
+		footer button{
+			line-height: 40px;
+			width: 80px;
+			text-align: center;
+			background:  #00BFFF;
+			color: #fff;
+			font-size: 15px;
+			outline: none;
+			border: 1px solid #00BFFF;
+		}
+	</style>
+</head>
+<body>
+  	<div>
+  		<main id = "main">
+  				
+  		</main>
+
+  		<footer>
+  			<input type="text" id="send-content" class="user-input" placeholder="请输入..." value="" style="border:1px solid #00BFFF;"/>
+  		    <button id="send">Send</button>
+  		</footer>
+  	</div>
+  	<script type="text/javascript">
+  		var websocket = new WebSocket("ws://localhost:8080/");
+  		websocket.onopen = function() {
+  			console.log("开始连接");
+  		}
+  		websocket.onclose = function() {
+            console.log('连接关闭');
+  		}
+  		websocket.onmessage = function(e) {
+
+  			var mes = JSON.parse(e.data);
+  			console.log(mes);
+            var section = document.createElement('section');
+            	section.className = "content-box";
+            var img = document.createElement('img');
+  				img.setAttribute("src","./img/330539-14022113002163.jpg");
+  				if(mes.type == 0){
+                    
+  					section.appendChild(img);
+  				}
+  			var userBox = document.createElement('div');
+  			    userBox.className = 'user-box';
+  		  	var userName = document.createElement('div');
+  		  	   	userName.className = 'user-name';
+  		  	   	userName.innerHTML = mes.nickname;
+  		  	   	userBox.appendChild(userName);
+  		  	var userContent = document.createElement('div');
+  		  	    userContent.className = 'user-content';
+  		  	var p = document.createElement('p');
+  		  	    p.innerHTML = mes.data;
+  		  	    userContent.appendChild(p);
+  		  	    userBox.appendChild(userContent);
+  		  	    section.appendChild(userBox);
+  		  	    if(mes.type == 1){
+  		  	    	
+  		  	
+  		  	    	section.appendChild(img);
+  		  	    	
+  		  		}
+  		  	var main = document.getElementById('main');
+  		  	    main.appendChild(section);
+  		  	    main.scrollIntoView(false);
+  		  	    console.log(main.scrollHeight);
+  		  	    main.scrollTo(0,main.scrollHeight);
+  				
+  		}
+  		var sendMessage = document.getElementById("send");
+  			sendMessage.onclick = function() {
+  				var txt = document.getElementById("send-content").value;
+  				websocket.send(txt);
+  				    document.getElementById("send-content").value= '';
+	  		}
+	  	var sendContent = document.getElementById('send-content');
+  			sendContent.onkeydown = function( event) {
+  				if(event.keyCode == 13){
+  					var txt = document.getElementById("send-content").value;
+  					if(txt != ''){
+  					websocket.send(txt);
+  					}
+  				    document.getElementById("send-content").value= '';
+	  				}
+	  		}
+  	</script>
+</html>
